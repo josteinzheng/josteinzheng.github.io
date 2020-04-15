@@ -3,7 +3,7 @@ Play with HTTP
 
 
 ## HTTP in Networking protocol Stack
-  ![](./img/Network-Stack-Models1.png)
+  ![](./image/Network-Stack-Models1.png)
   [TCP/IP Network Programming Design Pattens in C++](https://vichargrave.github.io/articles/2013-02/tcp-ip-network-programming-design-patterns-in-cpp)
 
 ## Play with others
