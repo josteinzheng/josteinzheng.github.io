@@ -1,6 +1,13 @@
-Play with HTTP
-================
-
+---
+layout:     post
+title:      "Play with HTTP"
+subtitle:   ""
+date:       2017-11-08 21:42:00
+author:     "Jostein"
+header-img: "img/Network-Stack-Models1.png"
+tags:
+    - network
+---
 
 ## HTTP in Networking protocol Stack
   ![](/img/Network-Stack-Models1.png)
