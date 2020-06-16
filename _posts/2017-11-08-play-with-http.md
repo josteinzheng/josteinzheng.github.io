@@ -2,7 +2,7 @@
 layout:     post
 title:      "Play with HTTP"
 subtitle:   ""
-date:       2017-11-08 21:42:00
+date:       2017-11-08
 author:     "Jostein"
 tags:
     - network

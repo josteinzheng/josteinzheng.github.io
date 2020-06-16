@@ -2,7 +2,7 @@
 layout:     post
 title:      "如何更有效地搜索"
 subtitle:   ""
-date:       2019-10-12 21:42:00
+date:       2019-10-12
 author:     "Jostein"
 tags:
     - tools
