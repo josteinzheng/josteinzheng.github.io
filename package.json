@@ -1,9 +1,9 @@
 {
-    "name": "hux-blog",
-    "title": "Hux Blog",
+    "name": "PizzaBus",
+    "title": "PizzaBus Blog",
     "version": "1.0.0",
-    "homepage": "http://huxpro.github.io",
-    "author": "Hux",
+    "homepage": "https://josteinzheng.github.io",
+    "author": "Jostein",
     "devDependencies": {
         "grunt": "~0.4.5",
         "grunt-contrib-less": "~0.11.4",
@@ -13,10 +13,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/Huxpro/huxpro.github.io"
+        "url": "https://github.com/josteinzheng/josteinzheng.github.io"
     },
     "scripts": {
-        "preview": "cd _site; python -m SimpleHTTPServer 8020",
-        "watch": "grunt watch & npm run preview & jekyll serve -w;"
+        "preview": "cd _site; python3 -m http.server",
+        "watch": "grunt watch & bundle exe jekyll serve -w;"
     }
 }
