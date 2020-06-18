@@ -58,7 +58,7 @@ duoshuo_share: false                     # set to false if you want to use Comme
 
 # Analytics settings
 # Baidu Analytics
-ba_track_id: 'todo'
+ba_track_id: 'c7e304c71d82e4ea132118df8cb8d9e0'
 # Google Analytics
 ga_track_id: 'todo'            # Format: UA-xxxxxx-xx
 ga_domain: josteinzheng.cn
