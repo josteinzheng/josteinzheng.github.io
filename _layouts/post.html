@@ -51,6 +51,9 @@ layout: default
 
                 <hr>
 
+                <!-- ························Gitalk评论系统·························· -->
+                <div id="gitalk-container"></div>
+
                 {% if site.duoshuo_share && site.duoshuo_username %}
                 <!-- 多说 Share start -->
                 </style>
@@ -150,6 +153,20 @@ layout: default
         </div>
     </div>
 </article>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+  var gitalk  = new Gitalk ({
+      id: location.pathname,   // Ensure uniqueness and length less than 50
+      clientID: '{{ site.github_oauth_client_id }}',
+      clientSecret: '{{ site.github_oauth_client_key }}',
+      repo: '{{ site.github_comment_repo_name }}',
+      owner: '{{ site.github_username }}',
+      admin: '{{ site.github_username }}',
+      distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+  gitalk.render('gitalk-container')
+</script>
 
 {% if site.duoshuo_username %}
 <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
@@ -170,7 +187,6 @@ layout: default
 </script>
 <!-- 多说公共JS代码 end -->
 {% endif %}
-
 
 {% if site.disqus_username %}
 <!-- disqus 公共JS代码 start (一个网页只需插入一次) -->

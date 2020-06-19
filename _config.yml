@@ -44,6 +44,10 @@ kramdown:
   input: GFM                            # use Github Flavored Markdown !important
 
 
+#Gitalk
+github_comment_repo_name: github-pages-comment
+github_oauth_client_id: efc9e2f98b9fae506c3f
+github_oauth_client_key: 692820da192ba1ef141ae2d425ed28c8309a5c2c
 
 # Disqus settings
 #disqus_username: _your_disqus_short_name_
