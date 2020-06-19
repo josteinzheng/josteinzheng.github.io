@@ -52,12 +52,6 @@ github_oauth_client_key: 692820da192ba1ef141ae2d425ed28c8309a5c2c
 # Disqus settings
 #disqus_username: _your_disqus_short_name_
 
-# Duoshuo settings
-duoshuo_username: josteinzheng
-# Share component is depend on Comment so we can NOT use share only.
-duoshuo_share: false                     # set to false if you want to use Comment without Sharing
-
-
 
 
 # Analytics settings
