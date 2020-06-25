@@ -23,7 +23,8 @@ tags:
 
 ### 本地环境和软件版本
 * 操作系统版本：　Ubuntu 18.04.4 LTS
-* Tomcat: [8.5.55](https://mirror.bit.edu.cn/apache/tomcat/tomcat-8/v8.5.55/src/apache-tomcat-8.5.55-src.tar.gz)
+* Tomcat: [8.5.56](
+https://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-8/v8.5.56/src/apache-tomcat-8.5.56-src.tar.gz)
 * JDK: 11 [Linux/x64 Java Development Kit](https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz)　或者　```sudo apt install openjdk-11-jdk```
 * Intellij IDEA 2019 Ultimate Edition
 
