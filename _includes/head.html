@@ -42,4 +42,9 @@
 
     <!-- ga & ba script hoook -->
     <script></script>
+
+
+    {% if jekyll.environment == "development" %}
+      <script src="/js/live.js#html"></script>
+    {% endif %}
 </head>
