@@ -5,7 +5,7 @@ header-img: img/home-bg.jpg
 email: josteinzheng@126.com
 description: "stay hungry, stay foolish"
 keyword: "blogs java"
-url: "http://josteinzheng.cn"              # your host, for absolute URL
+url: "https://josteinzheng.github.io"              # your host, for absolute URL
 baseurl: ""         # for example, '/blog' if your blog hosted on 'host/blog'
 timezone: Asia/Shanghai
 
@@ -59,7 +59,7 @@ github_oauth_client_key: 692820da192ba1ef141ae2d425ed28c8309a5c2c
 ba_track_id: 'c7e304c71d82e4ea132118df8cb8d9e0'
 # Google Analytics
 # ga_track_id: 'todo'            # Format: UA-xxxxxx-xx
-ga_domain: josteinzheng.cn
+ga_domain: josteinzheng.github.io
 
 
 
