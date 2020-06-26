@@ -126,7 +126,7 @@ try {
 ```
 删除后重新编译通过。
 ### 启动
-　　编译通过后，找到```org.apache.catalina.startup.Bootstrap```类，点击左侧三角图标选择```Debug 'Bootstrap.main()'```可成功启动，在浏览器输入[http://localhost:8080](http://localhost:8080)提示HTTP状态 500 - 内部服务器错误，详细错误堆栈如下：
+　　编译通过后，找到```org.apache.catalina.startup.Bootstrap```类，点击左侧三角图标选择```Debug 'Bootstrap.main()'```可成功启动，在浏览器输入```http://localhost:8080```提示HTTP状态 500 - 内部服务器错误，详细错误堆栈如下：
 ```
 消息 Unable to compile class for JSP
 org.apache.jasper.JasperException: Unable to compile class for JSP
@@ -155,6 +155,6 @@ webConfig();  //原有代码
 //配置jsp解析引擎
 context.addServletContainerInitializer(new JasperInitializer(), null);
 ```
-　　重启服务器后，再次请求http://localhost:8080应可正常显示
+　　重启服务器后，再次请求```http://localhost:8080```应可正常显示
 ### FAQ
 　　无

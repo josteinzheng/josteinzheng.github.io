@@ -12,13 +12,13 @@ tags:
 神话来源于原始社会时期，人类通过推理和想象对自然现象作出解释。但是由于这时的知识水准非常低下，因此经常笼罩着一层神秘的色彩。
 
 神话具有一定的地域性和区域性，不同的文明或者民族都有自己所理解的神话含义
-* [中国神话](https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9C%8B%E7%A5%9E%E8%A9%B1)
-* [日本神话](https://zh.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E7%A5%9E%E8%A9%B1)
-* [印度神话](https://zh.wikipedia.org/wiki/%E5%8D%B0%E5%BA%A6%E6%95%99%E7%A5%9E%E8%AF%9D)
-* [北欧神话](https://zh.wikipedia.org/wiki/%E5%8C%97%E6%AC%A7%E7%A5%9E%E8%AF%9D)
-* [罗马神话](https://zh.wikipedia.org/wiki/%E7%BD%97%E9%A9%AC%E7%A5%9E%E8%AF%9D)
-* [希腊神话](https://zh.wikipedia.org/wiki/%E5%B8%8C%E8%85%8A%E7%A5%9E%E8%AF%9D)
-* [埃及神话](https://zh.wikipedia.org/wiki/%E5%9F%83%E5%8F%8A%E7%A5%9E%E8%A9%B1)
+* [中国神话](https://baike.baidu.com/item/%E4%B8%AD%E5%9B%BD%E7%A5%9E%E8%AF%9D/67729)
+* [日本神话](https://baike.baidu.com/item/%E6%97%A5%E6%9C%AC%E7%A5%9E%E8%AF%9D)
+* [印度神话](https://baike.baidu.com/item/%E5%8D%B0%E5%BA%A6%E7%A5%9E%E8%AF%9D/1019377)
+* [北欧神话](https://baike.baidu.com/item/%E5%8C%97%E6%AC%A7%E7%A5%9E%E8%AF%9D/671)
+* [罗马神话](https://baike.baidu.com/item/%E7%BD%97%E9%A9%AC%E7%A5%9E%E8%AF%9D/63443)
+* [希腊神话](https://baike.baidu.com/item/%E5%B8%8C%E8%85%8A%E7%A5%9E%E8%AF%9D/63444)
+* [埃及神话](https://baike.baidu.com/item/%E5%9F%83%E5%8F%8A%E7%A5%9E%E8%AF%9D/2062509)
 
 #### 不同文化中常见的相同神话主题
   * 万物起源
@@ -39,7 +39,7 @@ tags:
   * 泰坦神族（旧）、奥林匹斯神系（新）
   * 神、英雄
 
-[希腊神话主神关系图](https://www.processon.com/diagraming/5a32357be4b09415c8ac4375)
+![希腊神话主神关系图](/img/gods-of-greece.png)
 
   * 克罗诺斯如何上位：乌拉诺斯仇视6个巨人儿子，把他们关在地神盖亚腹内的黑暗中，让他们不见天日。盖亚很痛苦，劝6个泰坦儿子起来反对乌拉诺斯，乌拉诺斯用计谋阉割了他父亲，成为众神领袖
   * 宙斯如何上位：克罗诺斯担心子女们起来反抗他，使自己落下跟乌拉诺斯一样的命运，所以他吞噬了瑞亚生下的所有子女，到宙斯时，瑞亚听从父母亲劝告，逃到克里特岛，生下宙斯并用包布裹上一块石头给克罗诺斯吞食。宙斯长大后逼他吐出所有的子女。然后是一场旷日持久的奥林波斯诸神与提坦神争夺世界统治权的战争，宙斯得到独眼巨人和百臂巨人的帮助，还有部分提坦神站在宙斯这边，最终打败了提坦神。

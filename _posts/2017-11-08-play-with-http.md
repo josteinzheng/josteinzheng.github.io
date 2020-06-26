@@ -9,8 +9,8 @@ tags:
 ---
 
 ## HTTP in Networking protocol Stack
-  ![](/img/Network-Stack-Models1.png)
-  [TCP/IP Network Programming Design Pattens in C++](https://vichargrave.github.io/articles/2013-02/tcp-ip-network-programming-design-patterns-in-cpp)
+  ![network stack model](/img/Network-Stack-Models1.png)
+  [TCP/IP Network Programming Design Pattens in C++](https://vichargrave.github.io/programming/tcp-ip-network-programming-design-patterns-in-cpp/)
 
 ## Play with others
   * dns
@@ -96,7 +96,6 @@ tags:
 
 ## Reference
   * [HTTP概述](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Overview)
-  * [What's in an HTTP request](http://rve.org.uk/dumprequest)
   * [An easy way to send UDP packets in Linux](https://afterthoughtsoftware.com/posts/an-easy-way-to-send-udp-packets-in-linux)
   * [HTTP request methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
   * [HTTP/1.1: Status Code Definitions](https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html)
