@@ -17,6 +17,6 @@
     },
     "scripts": {
         "preview": "cd _site; python3 -m http.server",
-        "watch": "grunt watch & bundle exe jekyll serve -w;"
+        "serve": "htmlproofer _site & bundle exe jekyll serve -w;"
     }
 }
