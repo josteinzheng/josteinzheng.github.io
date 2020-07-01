@@ -4,7 +4,7 @@ rvm:
 
 install: bundle install
 #script: jekyll build && htmlproofer ./_site --disable-external
-script: jekyll build
+script: JEKYLL_ENV=production bundle exec jekyll build
 
 branches:
   only:
