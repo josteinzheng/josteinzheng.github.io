@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="stay hungry, stay foolish">
+    <meta name="keyword"  content="blogs java">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>How to build Tomcat by maven - PizzaBus</title>
+
+    <link rel="canonical" href="https://josteinzheng.github.io/2020/06/10/how-to-build-tomcat-by-maven/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">PizzaBus</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/home-bg.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#java" title="java">java</a>
+                        
+                        <a class="tag" href="/tags/#maven" title="maven">maven</a>
+                        
+                        <a class="tag" href="/tags/#manual" title="manual">manual</a>
+                        
+                        <a class="tag" href="/tags/#tomcat" title="tomcat">tomcat</a>
+                        
+                    </div>
+                    <h1>How to build Tomcat by maven</h1>
+                    
+                    
+                    <h2 class="subheading"></h2>
+                    
+                    <span class="meta">Posted by Jostein on June 10, 2020</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#%E6%9C%AC%E5%9C%B0%E7%8E%AF%E5%A2%83%E5%92%8C%E8%BD%AF%E4%BB%B6%E7%89%88%E6%9C%AC">本地环境和软件版本</a></li>
+  <li><a href="#%E6%B7%BB%E5%8A%A0maven%E9%85%8D%E7%BD%AE">添加maven配置</a></li>
+  <li><a href="#%E7%BC%96%E8%AF%91">编译</a></li>
+  <li><a href="#%E5%90%AF%E5%8A%A8">启动</a></li>
+  <li><a href="#faq">FAQ</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+<h3 id="本地环境和软件版本">本地环境和软件版本</h3>
+<ul>
+  <li>操作系统版本：　Ubuntu 18.04.4 LTS</li>
+  <li>Tomcat: <a href="https://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-8/v8.5.56/src/apache-tomcat-8.5.56-src.tar.gz">8.5.56</a></li>
+  <li>JDK: 11 <a href="https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz">Linux/x64 Java Development Kit</a>　或者　<code class="language-plaintext highlighter-rouge">sudo apt install openjdk-11-jdk</code></li>
+  <li>Intellij IDEA 2019 Ultimate Edition</li>
+</ul>
+
+<h3 id="添加maven配置">添加maven配置</h3>
+<p>　　解压缩tomcat源码包后，在解压出的源码根目录<code class="language-plaintext highlighter-rouge">apache-tomcat-8.5.55-src</code>下创建pom.xml文件，内容如下：</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="nt">&lt;project</span> <span class="na">xmlns=</span><span class="s">"http://maven.apache.org/POM/4.0.0"</span>
+         <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
+         <span class="na">xsi:schemaLocation=</span><span class="s">"http://maven.apache.org/POM/4.0.0
+http://maven.apache.org/xsd/maven-4.0.0.xsd"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.apache.tomcat<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>apache-tomcat-8.5.55-src<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;name&gt;</span>Tomcat8.5<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;version&gt;</span>8.5<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;build&gt;</span>
+        <span class="c">&lt;!--指定源目录--&gt;</span>
+        <span class="nt">&lt;finalName&gt;</span>Tomcat8.5<span class="nt">&lt;/finalName&gt;</span>
+        <span class="nt">&lt;sourceDirectory&gt;</span>java<span class="nt">&lt;/sourceDirectory&gt;</span>
+        <span class="nt">&lt;resources&gt;</span>
+            <span class="nt">&lt;resource&gt;</span>
+                <span class="nt">&lt;directory&gt;</span>java<span class="nt">&lt;/directory&gt;</span>
+            <span class="nt">&lt;/resource&gt;</span>
+        <span class="nt">&lt;/resources&gt;</span>
+        <span class="nt">&lt;plugins&gt;</span>
+            <span class="c">&lt;!--引入编译插件--&gt;</span>
+            <span class="nt">&lt;plugin&gt;</span>
+                <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+                <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+                <span class="nt">&lt;version&gt;</span>3.1<span class="nt">&lt;/version&gt;</span>
+                <span class="nt">&lt;configuration&gt;</span>
+                    <span class="nt">&lt;encoding&gt;</span>UTF-8<span class="nt">&lt;/encoding&gt;</span>
+                    <span class="nt">&lt;source&gt;</span>11<span class="nt">&lt;/source&gt;</span>
+                    <span class="nt">&lt;target&gt;</span>11<span class="nt">&lt;/target&gt;</span>
+                <span class="nt">&lt;/configuration&gt;</span>
+            <span class="nt">&lt;/plugin&gt;</span>
+        <span class="nt">&lt;/plugins&gt;</span>
+    <span class="nt">&lt;/build&gt;</span>
+    <span class="c">&lt;!--tomcat 依赖的基础包--&gt;</span>
+    <span class="nt">&lt;dependencies&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.easymock<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>easymock<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>3.4<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>ant<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>ant<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>1.7.0<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>wsdl4j<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>wsdl4j<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>1.6.2<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>javax.xml<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>jaxrpc<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>1.1<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.eclipse.jdt.core.compiler<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>ecj<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>4.5.1<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>javax.xml.soap<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>javax.xml.soap-api<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>1.4.0<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+    <span class="nt">&lt;/dependencies&gt;</span>
+<span class="nt">&lt;/project&gt;</span>
+</code></pre></div></div>
+<p>然后在IDEA中导入该工程，选择maven(添加pom.xml后应该是默认选项)</p>
+<h3 id="编译">编译</h3>
+<p>　　IDEA上选择Build-&gt;Build Project，会出现如下提示信息</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/home/jostein/workspace/apache-tomcat-8.5.55-src/java/org/apache/catalina/mbeans/JmxRemoteLifecycleListener.java
+Error:(514, 53) java: package sun.rmi.registry is not visible
+  (package sun.rmi.registry is declared in module java.rmi, which does not export it to the unnamed module)
+</code></pre></div></div>
+<p>这个问题从出错信息上应该是sun.rmi.registry包在这个jdk版本已经不对外暴露，不过出错的类<code class="language-plaintext highlighter-rouge">JmxRegistry</code>从调用上看已经不再使用了，所以可以直接删除该调用和类定义即可，原代码调用如下：</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="o">{</span>
+    <span class="cm">/*
+     * JmxRegistry is registered as a side-effect of creation.
+     * This object is here so we can tell the IDE it is OK for it
+     * not to be used.
+     */</span>
+    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unused"</span><span class="o">)</span>
+    <span class="nc">JmxRegistry</span> <span class="n">unused</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JmxRegistry</span><span class="o">(</span><span class="n">theRmiRegistryPort</span><span class="o">,</span> <span class="n">registryCsf</span><span class="o">,</span> <span class="n">registrySsf</span><span class="o">,</span> <span class="s">"jmxrmi"</span><span class="o">,</span> <span class="n">jmxServer</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">RemoteException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="n">sm</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span>
+            <span class="s">"jmxRemoteLifecycleListener.createRegistryFailed"</span><span class="o">,</span>
+            <span class="n">serverName</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">theRmiRegistryPort</span><span class="o">)),</span> <span class="n">e</span><span class="o">);</span>
+    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>删除后重新编译通过。</p>
+<h3 id="启动">启动</h3>
+<p>　　编译通过后，找到<code class="language-plaintext highlighter-rouge">org.apache.catalina.startup.Bootstrap</code>类，点击左侧三角图标选择<code class="language-plaintext highlighter-rouge">Debug 'Bootstrap.main()'</code>可成功启动，在浏览器输入<code class="language-plaintext highlighter-rouge">http://localhost:8080</code>提示HTTP状态 500 - 内部服务器错误，详细错误堆栈如下：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>消息 Unable to compile class for JSP
+org.apache.jasper.JasperException: Unable to compile class for JSP
+	org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:613)
+	org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:399)
+	org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:386)
+	org.apache.jasper.servlet.JspServlet.service(JspServlet.java:330)
+	javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+根本原因。
+java.lang.NullPointerException
+	org.apache.jasper.compiler.Validator$ValidateVisitor.&lt;init&gt;(Validator.java:523)
+	org.apache.jasper.compiler.Validator.validateExDirectives(Validator.java:1855)
+	org.apache.jasper.compiler.Compiler.generateJava(Compiler.java:221)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:375)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:351)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:335)
+	org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:597)
+	org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:399)
+	org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:386)
+	org.apache.jasper.servlet.JspServlet.service(JspServlet.java:330)
+	javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+</code></pre></div></div>
+<p>这个问题是未配置jsp解析引擎，找到<code class="language-plaintext highlighter-rouge">org.apache.catalina.startup.ContextConfig</code>类，在<code class="language-plaintext highlighter-rouge">protected synchronized void configureStart()</code>方法里添加配置</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">webConfig</span><span class="o">();</span>  <span class="c1">//原有代码</span>
+<span class="c1">//配置jsp解析引擎</span>
+<span class="n">context</span><span class="o">.</span><span class="na">addServletContainerInitializer</span><span class="o">(</span><span class="k">new</span> <span class="nc">JasperInitializer</span><span class="o">(),</span> <span class="kc">null</span><span class="o">);</span>
+</code></pre></div></div>
+<p>　　重启服务器后，再次请求<code class="language-plaintext highlighter-rouge">http://localhost:8080</code>应可正常显示</p>
+<h3 id="faq">FAQ</h3>
+<p>　　无</p>
+
+
+                <hr>
+
+                <!-- ························Gitalk评论系统·························· -->
+                <div id="gitalk-container"></div>
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/10/12/Skills-in-Search/" data-toggle="tooltip" data-placement="top" title="如何更有效地搜索">&larr; Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2020/06/22/tomcat-architecture/" data-toggle="tooltip" data-placement="top" title="Tomcat体系结构">Next Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+
+            </div>
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#tools" title="tools" rel="2">
+                                    tools
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#java" title="java" rel="2">
+                                    java
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#tomcat" title="tomcat" rel="2">
+                                    tomcat
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#backend" title="backend" rel="2">
+                                    backend
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="https://zhengdouglas.github.io">豆角</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+  var gitalk  = new Gitalk ({
+      id: location.pathname,   // Ensure uniqueness and length less than 50
+      clientID: 'efc9e2f98b9fae506c3f',
+      clientSecret: '692820da192ba1ef141ae2d425ed28c8309a5c2c',
+      repo: 'github-pages-comment',
+      owner: 'josteinzheng',
+      admin: 'josteinzheng',
+      distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+  gitalk.render('gitalk-container')
+</script>
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:https://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: ''
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/josteinzheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; PizzaBus 2020
+                    <br>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+-->
+<!--
+    <script>
+        async("https://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="https://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = 'c7e304c71d82e4ea132118df8cb8d9e0';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+</body>
+
+</html>

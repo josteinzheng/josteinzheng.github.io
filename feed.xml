@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>PizzaBus</title>
+    <description>stay hungry, stay foolish</description>
+    <link>https://josteinzheng.github.io/</link>
+    <atom:link href="https://josteinzheng.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Fri, 03 Jul 2020 00:40:46 +0800</pubDate>
+    <lastBuildDate>Fri, 03 Jul 2020 00:40:46 +0800</lastBuildDate>
+    <generator>Jekyll v4.1.0</generator>
+    
+      <item>
+        <title>elastic-job-lite如何实现分布式调度</title>
+        <description>&lt;!-- START doctoc generated TOC please keep comment here to allow auto update --&gt;
+&lt;!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE --&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#%E4%BB%80%E4%B9%88%E6%98%AF%E5%88%86%E5%B8%83%E5%BC%8F%E8%B0%83%E5%BA%A6&quot;&gt;什么是分布式调度&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#elastic-job-lite%E6%98%AF%E4%BB%80%E4%B9%88&quot;&gt;elastic-job-lite是什么&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#elastic-job-lite%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86&quot;&gt;elastic-job-lite任务调度实现原理&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#references&quot;&gt;References&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- END doctoc generated TOC please keep comment here to allow auto update --&gt;
+
+&lt;h2 id=&quot;什么是分布式调度&quot;&gt;什么是分布式调度&lt;/h2&gt;
+&lt;p&gt;　　生活中人们经常需要对交通工具进行调度，如公交车、地铁，飞机甚至每个出租车公司一般都有自己的调度中心。以出租车为例，客户下单需要用车，调度中心分配一个车辆。车辆中途抛锚，那就需要协调来一辆新的车。可能有多个客户，一辆车装不下，或者多地点有用车需求，那就相当于计算机里的分布式调度了。&lt;br /&gt;
+　　数据归档、每月报表等是常见的定时任务，如何让这类任务以我们期望的方式（准点，容错甚至任务分割）是分布式调度要解决的问题。&lt;/p&gt;
+
+&lt;h2 id=&quot;elastic-job-lite是什么&quot;&gt;elastic-job-lite是什么&lt;/h2&gt;
+&lt;p&gt;如下引用自&lt;a href=&quot;https://shardingsphere.apache.org/elasticjob/lite/00-overview/&quot;&gt;官方介绍&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Elastic-Job是一个分布式调度解决方案，由两个相互独立的子项目Elastic-Job-Lite和Elastic-Job-Cloud组成。
+&lt;br /&gt;
+Elastic-Job-Lite定位为轻量级无中心化解决方案，使用jar包的形式提供分布式任务的协调服务。&lt;/p&gt;
+  &lt;h2 id=&quot;功能列表&quot;&gt;功能列表&lt;/h2&gt;
+  &lt;ul&gt;
+    &lt;li&gt;分布式调度协调&lt;/li&gt;
+    &lt;li&gt;弹性扩容缩容&lt;/li&gt;
+    &lt;li&gt;失效转移&lt;/li&gt;
+    &lt;li&gt;错过执行作业重触发&lt;/li&gt;
+    &lt;li&gt;作业分片一致性，保证同一分片在分布式环境中仅一个执行实例&lt;/li&gt;
+    &lt;li&gt;自诊断并修复分布式不稳定造成的问题&lt;/li&gt;
+    &lt;li&gt;支持并行调度&lt;/li&gt;
+    &lt;li&gt;支持作业生命周期操作&lt;/li&gt;
+    &lt;li&gt;丰富的作业类型&lt;/li&gt;
+    &lt;li&gt;Spring整合以及命名空间提供&lt;/li&gt;
+    &lt;li&gt;运维平台&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;elastic-job-lite任务调度实现原理&quot;&gt;elastic-job-lite任务调度实现原理&lt;/h2&gt;
+&lt;p&gt;如下是引自官网的整体架构图：
+&lt;img src=&quot;/img/elastic-job-lite-architecture.png&quot; alt=&quot;elastic-job-lite-architecture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;从架构图可以看出elastic-job-lite是通过Console(配置后台)与Registry(Zookeeper)交互实现任务存取，同时Zookeeper也负责保存所有节点信息和分片信息。App(各节点或叫作业服务器)则通过注册中心完成主节点选取、重新分片等操作实现了任务的协调执行。&lt;/p&gt;
+
+&lt;h2 id=&quot;references&quot;&gt;References&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/apache/shardingsphere-elasticjob-lite&quot;&gt;elastic-job-lite on github&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://shardingsphere.apache.org/elasticjob/lite/03-design/lite-design/&quot;&gt;elastic-job-lite实现原理&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Thu, 02 Jul 2020 20:00:00 +0800</pubDate>
+        <link>https://josteinzheng.github.io/2020/07/02/%E5%88%86%E5%B8%83%E5%BC%8F%E8%B0%83%E5%BA%A6/</link>
+        <guid isPermaLink="true">https://josteinzheng.github.io/2020/07/02/%E5%88%86%E5%B8%83%E5%BC%8F%E8%B0%83%E5%BA%A6/</guid>
+        
+        <category>tools</category>
+        
+        <category>backend</category>
+        
+        <category>job</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Tomcat体系结构</title>
+        <description>&lt;!-- START doctoc generated TOC please keep comment here to allow auto update --&gt;
+&lt;!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE --&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#summarize&quot;&gt;Summarize&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#whole-picture&quot;&gt;Whole Picture&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#coyote&quot;&gt;Coyote&lt;/a&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#protocolhandler&quot;&gt;ProtocolHandler&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#processor&quot;&gt;Processor&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#adapter&quot;&gt;Adapter&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#connector&quot;&gt;Connector&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#endpoint&quot;&gt;Endpoint&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#container&quot;&gt;Container&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- END doctoc generated TOC please keep comment here to allow auto update --&gt;
+
+&lt;h2 id=&quot;summarize&quot;&gt;Summarize&lt;/h2&gt;
+&lt;p&gt;　　Tomcat是一个servlet容器，同时也是web应用服务器，下文基于tomcat8.5.50版本简要分析Tomcat是如何设计来承担这两个角色的。&lt;/p&gt;
+&lt;h2 id=&quot;whole-picture&quot;&gt;Whole Picture&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;/img/tomcat-architecture.png&quot; alt=&quot;tomcat architecture&quot; /&gt;
+如上图所示，左侧是web应用服务器的主要组件，右侧是servlet容器的核心组件，中间Connector承上启下构成了整个tomcat。下面将具体说明各个组件的核心功能。&lt;/p&gt;
+&lt;h3 id=&quot;coyote&quot;&gt;Coyote&lt;/h3&gt;
+&lt;p&gt;　　基于nio/apr/nio2框架处理socket连接，支持协议http1.1/http2.0/ajp，并封装请求为Request和返回结果Response（coyote框架内部使用）,将http请求转发给Adapter实现类。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;protocolhandler&quot;&gt;ProtocolHandler&lt;/h4&gt;
+    &lt;p&gt;　　顶层协议接口，主要实现类AbstractAjpProtocol，AbstractHttp11Protocol，根据不同协议来初始化Request请求。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;processor&quot;&gt;Processor&lt;/h4&gt;
+    &lt;p&gt;　　将封装好的Request和Response转发给Adapter实现类。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;adapter&quot;&gt;Adapter&lt;/h4&gt;
+    &lt;p&gt;　　servlet容器实现该接口来处理请求和返回结果。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;connector&quot;&gt;Connector&lt;/h3&gt;
+&lt;p&gt;web服务器和servlet容器的连接器，也支持ajp协议来连接外部web服务器（如Apache服务器）。&lt;/p&gt;
+&lt;h3 id=&quot;endpoint&quot;&gt;Endpoint&lt;/h3&gt;
+&lt;p&gt;　　封装socket处理结果和io事件并回调给ProtocolHandler。&lt;/p&gt;
+&lt;h3 id=&quot;container&quot;&gt;Container&lt;/h3&gt;
+&lt;p&gt;　　容器顶层接口，主要子接口Engine,Host,Context,Wrapper,请求会经过各父容器的加工、过滤，最终转发到wrapper封装的servlet。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;engine&quot;&gt;Engine&lt;/h4&gt;
+    &lt;p&gt;　　Catalina层级中的最顶层父容器，其下可包含多个Host或Context&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;host&quot;&gt;Host&lt;/h4&gt;
+    &lt;p&gt;　　代表一个虚拟站点，一般来说对应一个hostname，可包含多个Context&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;context&quot;&gt;Context&lt;/h4&gt;
+    &lt;p&gt;　　代表一个独立的web应用，可包含多个Wrapper&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;wrapper&quot;&gt;Wrapper&lt;/h4&gt;
+    &lt;p&gt;负责一个servlet类整个生命周期的管理，方便实现或配置针对该servlet的拦截器&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Mon, 22 Jun 2020 00:00:00 +0800</pubDate>
+        <link>https://josteinzheng.github.io/2020/06/22/tomcat-architecture/</link>
+        <guid isPermaLink="true">https://josteinzheng.github.io/2020/06/22/tomcat-architecture/</guid>
+        
+        <category>java</category>
+        
+        <category>backend</category>
+        
+        <category>web</category>
+        
+        <category>middleware</category>
+        
+        <category>tomcat</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>How to build Tomcat by maven</title>
+        <description>&lt;!-- START doctoc generated TOC please keep comment here to allow auto update --&gt;
+&lt;!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE --&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#%E6%9C%AC%E5%9C%B0%E7%8E%AF%E5%A2%83%E5%92%8C%E8%BD%AF%E4%BB%B6%E7%89%88%E6%9C%AC&quot;&gt;本地环境和软件版本&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#%E6%B7%BB%E5%8A%A0maven%E9%85%8D%E7%BD%AE&quot;&gt;添加maven配置&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#%E7%BC%96%E8%AF%91&quot;&gt;编译&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#%E5%90%AF%E5%8A%A8&quot;&gt;启动&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#faq&quot;&gt;FAQ&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- END doctoc generated TOC please keep comment here to allow auto update --&gt;
+
+&lt;h3 id=&quot;本地环境和软件版本&quot;&gt;本地环境和软件版本&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;操作系统版本：　Ubuntu 18.04.4 LTS&lt;/li&gt;
+  &lt;li&gt;Tomcat: &lt;a href=&quot;https://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-8/v8.5.56/src/apache-tomcat-8.5.56-src.tar.gz&quot;&gt;8.5.56&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;JDK: 11 &lt;a href=&quot;https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz&quot;&gt;Linux/x64 Java Development Kit&lt;/a&gt;　或者　&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sudo apt install openjdk-11-jdk&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Intellij IDEA 2019 Ultimate Edition&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;添加maven配置&quot;&gt;添加maven配置&lt;/h3&gt;
+&lt;p&gt;　　解压缩tomcat源码包后，在解压出的源码根目录&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;apache-tomcat-8.5.55-src&lt;/code&gt;下创建pom.xml文件，内容如下：&lt;/p&gt;
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;project&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;xmlns=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://maven.apache.org/POM/4.0.0&quot;&lt;/span&gt;
+         &lt;span class=&quot;na&quot;&gt;xmlns:xsi=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&lt;/span&gt;
+         &lt;span class=&quot;na&quot;&gt;xsi:schemaLocation=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://maven.apache.org/POM/4.0.0
+http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;modelVersion&amp;gt;&lt;/span&gt;4.0.0&lt;span class=&quot;nt&quot;&gt;&amp;lt;/modelVersion&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.apache.tomcat&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;apache-tomcat-8.5.55-src&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;Tomcat8.5&lt;span class=&quot;nt&quot;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;8.5&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;build&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;&amp;lt;!--指定源目录--&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;finalName&amp;gt;&lt;/span&gt;Tomcat8.5&lt;span class=&quot;nt&quot;&gt;&amp;lt;/finalName&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;sourceDirectory&amp;gt;&lt;/span&gt;java&lt;span class=&quot;nt&quot;&gt;&amp;lt;/sourceDirectory&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;resources&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;resource&amp;gt;&lt;/span&gt;
+                &lt;span class=&quot;nt&quot;&gt;&amp;lt;directory&amp;gt;&lt;/span&gt;java&lt;span class=&quot;nt&quot;&gt;&amp;lt;/directory&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;/resource&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/resources&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;plugins&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;c&quot;&gt;&amp;lt;!--引入编译插件--&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;plugin&amp;gt;&lt;/span&gt;
+                &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.apache.maven.plugins&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+                &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;maven-compiler-plugin&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+                &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;3.1&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+                &lt;span class=&quot;nt&quot;&gt;&amp;lt;configuration&amp;gt;&lt;/span&gt;
+                    &lt;span class=&quot;nt&quot;&gt;&amp;lt;encoding&amp;gt;&lt;/span&gt;UTF-8&lt;span class=&quot;nt&quot;&gt;&amp;lt;/encoding&amp;gt;&lt;/span&gt;
+                    &lt;span class=&quot;nt&quot;&gt;&amp;lt;source&amp;gt;&lt;/span&gt;11&lt;span class=&quot;nt&quot;&gt;&amp;lt;/source&amp;gt;&lt;/span&gt;
+                    &lt;span class=&quot;nt&quot;&gt;&amp;lt;target&amp;gt;&lt;/span&gt;11&lt;span class=&quot;nt&quot;&gt;&amp;lt;/target&amp;gt;&lt;/span&gt;
+                &lt;span class=&quot;nt&quot;&gt;&amp;lt;/configuration&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;/plugin&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/plugins&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/build&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;&amp;lt;!--tomcat 依赖的基础包--&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependencies&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.easymock&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;easymock&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;3.4&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;ant&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;ant&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;1.7.0&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;wsdl4j&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;wsdl4j&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;1.6.2&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;javax.xml&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;jaxrpc&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;1.1&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.eclipse.jdt.core.compiler&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;ecj&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;4.5.1&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;javax.xml.soap&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;javax.xml.soap-api&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;1.4.0&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependencies&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/project&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;然后在IDEA中导入该工程，选择maven(添加pom.xml后应该是默认选项)&lt;/p&gt;
+&lt;h3 id=&quot;编译&quot;&gt;编译&lt;/h3&gt;
+&lt;p&gt;　　IDEA上选择Build-&amp;gt;Build Project，会出现如下提示信息&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;/home/jostein/workspace/apache-tomcat-8.5.55-src/java/org/apache/catalina/mbeans/JmxRemoteLifecycleListener.java
+Error:(514, 53) java: package sun.rmi.registry is not visible
+  (package sun.rmi.registry is declared in module java.rmi, which does not export it to the unnamed module)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;这个问题从出错信息上应该是sun.rmi.registry包在这个jdk版本已经不对外暴露，不过出错的类&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JmxRegistry&lt;/code&gt;从调用上看已经不再使用了，所以可以直接删除该调用和类定义即可，原代码调用如下：&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;cm&quot;&gt;/*
+     * JmxRegistry is registered as a side-effect of creation.
+     * This object is here so we can tell the IDE it is OK for it
+     * not to be used.
+     */&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@SuppressWarnings&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;unused&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;JmxRegistry&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unused&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;JmxRegistry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;theRmiRegistryPort&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;registryCsf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;registrySsf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;jmxrmi&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jmxServer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;RemoteException&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;&quot;jmxRemoteLifecycleListener.createRegistryFailed&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;serverName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Integer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;theRmiRegistryPort&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;删除后重新编译通过。&lt;/p&gt;
+&lt;h3 id=&quot;启动&quot;&gt;启动&lt;/h3&gt;
+&lt;p&gt;　　编译通过后，找到&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;org.apache.catalina.startup.Bootstrap&lt;/code&gt;类，点击左侧三角图标选择&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Debug 'Bootstrap.main()'&lt;/code&gt;可成功启动，在浏览器输入&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;http://localhost:8080&lt;/code&gt;提示HTTP状态 500 - 内部服务器错误，详细错误堆栈如下：&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;消息 Unable to compile class for JSP
+org.apache.jasper.JasperException: Unable to compile class for JSP
+	org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:613)
+	org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:399)
+	org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:386)
+	org.apache.jasper.servlet.JspServlet.service(JspServlet.java:330)
+	javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+根本原因。
+java.lang.NullPointerException
+	org.apache.jasper.compiler.Validator$ValidateVisitor.&amp;lt;init&amp;gt;(Validator.java:523)
+	org.apache.jasper.compiler.Validator.validateExDirectives(Validator.java:1855)
+	org.apache.jasper.compiler.Compiler.generateJava(Compiler.java:221)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:375)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:351)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:335)
+	org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:597)
+	org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:399)
+	org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:386)
+	org.apache.jasper.servlet.JspServlet.service(JspServlet.java:330)
+	javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;这个问题是未配置jsp解析引擎，找到&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;org.apache.catalina.startup.ContextConfig&lt;/code&gt;类，在&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;protected synchronized void configureStart()&lt;/code&gt;方法里添加配置&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;webConfig&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;//原有代码&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;//配置jsp解析引擎&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;addServletContainerInitializer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;JasperInitializer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;　　重启服务器后，再次请求&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;http://localhost:8080&lt;/code&gt;应可正常显示&lt;/p&gt;
+&lt;h3 id=&quot;faq&quot;&gt;FAQ&lt;/h3&gt;
+&lt;p&gt;　　无&lt;/p&gt;
+</description>
+        <pubDate>Wed, 10 Jun 2020 00:00:00 +0800</pubDate>
+        <link>https://josteinzheng.github.io/2020/06/10/how-to-build-tomcat-by-maven/</link>
+        <guid isPermaLink="true">https://josteinzheng.github.io/2020/06/10/how-to-build-tomcat-by-maven/</guid>
+        
+        <category>java</category>
+        
+        <category>maven</category>
+        
+        <category>manual</category>
+        
+        <category>tomcat</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>如何更有效地搜索</title>
+        <description>&lt;blockquote&gt;
+  &lt;h2 id=&quot;引用自如何用好谷歌等搜索引擎&quot;&gt;引用自&lt;a href=&quot;https://www.zhihu.com/question/20161362&quot;&gt;如何用好谷歌等搜索引擎？&lt;/a&gt;&lt;/h2&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;双引号&quot;&gt;双引号&lt;/h4&gt;
+    &lt;p&gt;把搜索词放在双引号中，代表完全匹配搜索，也就是说搜索结果返回的页面包含双引号中出现的所有的词，连顺序也必须完全匹配。bd和Google 都支持这个指令。例如搜索： “seo方法图片”&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;减号&quot;&gt;减号&lt;/h4&gt;
+    &lt;p&gt;减号代表搜索不包含减号后面的词的页面。使用这个指令时减号前面必须是空格，减号后面没有空格，紧跟着需要排除的词。Google 和bd都支持这个指令。例如：搜索 -引擎返回的则是包含“搜索”这个词，却不包含“引擎”这个词的结果&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;星号&quot;&gt;星号&lt;/h4&gt;
+    &lt;p&gt;星号&lt;em&gt;是常用的通配符，也可以用在搜索中。百度不支持&lt;/em&gt;号搜索指令。比如在Google 中搜索：搜索&lt;em&gt;擎其中的&lt;/em&gt;号代表任何文字。返回的结果就不仅包含“搜索引擎”，还包含了“搜索收擎”，“搜索巨擎”等内容。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;inurl&quot;&gt;inurl&lt;/h4&gt;
+    &lt;p&gt;inurl: 指令用于搜索查询词出现在url 中的页面。bd和Google 都支持inurl 指令。inurl 指令支持中文和英文。比如搜索：inurl:搜索引擎优化返回的结果都是网址url 中包含“搜索引擎优化”的页面。由于关键词出现在url 中对排名有一定影响，使用inurl:搜索可以更准确地找到竞争对手。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;inanchor&quot;&gt;inanchor&lt;/h4&gt;
+    &lt;p&gt;inanchor:指令返回的结果是导入链接锚文字中包含搜索词的页面。百度不支持inanchor。比如在Google 搜索 ：inanchor:点击这里返回的结果页面本身并不一定包含“点击这里”这四个字，而是指向这些页面的链接锚文字中出现了“点击这里”这四个字。可以用来找到某个关键词的竞争对收，而且这些竞争对手往往是做过SEO 的。研究竞争对手页面有哪些外部链接，就可以找到很多链接资源。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;intitle&quot;&gt;intitle&lt;/h4&gt;
+    &lt;p&gt;intitle: 指令返回的是页面title 中包含关键词的页面。Google 和bd都支持intitle 指令。使用intitle 指令找到的文件是更准确的竞争页面。如果关键词只出现在页面可见文字中，而没有出现在title 中，大部分情况是并没有针对关键词进行优化，所以也不是有力的竞争对手。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;allintitle&quot;&gt;allintitle&lt;/h4&gt;
+    &lt;p&gt;allintitle:搜索返回的是页面标题中包含多组关键词的文件。例如 ：allintitle:SEO 搜索引擎优化就相当于：intitle:SEO intitle:搜索引擎优化返回的是标题中中既包含“SEO”，也包含“搜索引擎优化”的页面&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;allinurl&quot;&gt;allinurl&lt;/h4&gt;
+    &lt;p&gt;与allintitle: 类似。allinurl:SEO 搜索引擎优化就相当于 ：inurl:SEO inurl:搜索引擎优化&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;filetype&quot;&gt;filetype&lt;/h4&gt;
+    &lt;p&gt;用于搜索特定文件格式。Google 和bd都支持filetype 指令。比如搜索filetype:pdf SEO返回的就是包含SEO 这个关键词的所有pdf 文件。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;site&quot;&gt;site&lt;/h4&gt;
+    &lt;p&gt;site:是SEO 最熟悉的高级搜索指令，用来搜索某个域名下的所有文件。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;linkdomain&quot;&gt;linkdomain&lt;/h4&gt;
+    &lt;p&gt;linkdomain:指令只适用于雅虎，返回的是某个域名的反向链接。雅虎的反向链接数据还比较准确，是SEO 人员研究竞争对手外部链接情况的重要工具之一。比如搜索linkdomain:http://cnseotool.com -site:http://cnseotool.com得到的就是点石网站的外部链接，因为-site:http://cnseotool.com 已经排除了点石本身的页面，也就是内部链接，剩下的就都是外部链接了。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h4 id=&quot;related&quot;&gt;related&lt;/h4&gt;
+    &lt;p&gt;related:指令只适用于Google，返回的结果是与某个网站有关联的页面。比如搜索related:http://cnseotool.com我们就可以得到Google 所认为的与点石网站有关联的其他页面。 这种关联到底指的是什么，Google 并没有明确说明，一般认为指的是有共同外部链接的网站。上面介绍的这几个高级搜索指令，单独使用可以找到不少资源，或者可以更精确地定位竞争对手。把这些指令混合起来使用则更强大。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Sat, 12 Oct 2019 00:00:00 +0800</pubDate>
+        <link>https://josteinzheng.github.io/2019/10/12/Skills-in-Search/</link>
+        <guid isPermaLink="true">https://josteinzheng.github.io/2019/10/12/Skills-in-Search/</guid>
+        
+        <category>tools</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>什么是神话</title>
+        <description>&lt;h1 id=&quot;什么是神话&quot;&gt;什么是神话&lt;/h1&gt;
+&lt;p&gt;神话来源于原始社会时期，人类通过推理和想象对自然现象作出解释。但是由于这时的知识水准非常低下，因此经常笼罩着一层神秘的色彩。&lt;/p&gt;
+
+&lt;p&gt;神话具有一定的地域性和区域性，不同的文明或者民族都有自己所理解的神话含义&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://baike.baidu.com/item/%E4%B8%AD%E5%9B%BD%E7%A5%9E%E8%AF%9D/67729&quot;&gt;中国神话&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://baike.baidu.com/item/%E6%97%A5%E6%9C%AC%E7%A5%9E%E8%AF%9D&quot;&gt;日本神话&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://baike.baidu.com/item/%E5%8D%B0%E5%BA%A6%E7%A5%9E%E8%AF%9D/1019377&quot;&gt;印度神话&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://baike.baidu.com/item/%E5%8C%97%E6%AC%A7%E7%A5%9E%E8%AF%9D/671&quot;&gt;北欧神话&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://baike.baidu.com/item/%E7%BD%97%E9%A9%AC%E7%A5%9E%E8%AF%9D/63443&quot;&gt;罗马神话&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://baike.baidu.com/item/%E5%B8%8C%E8%85%8A%E7%A5%9E%E8%AF%9D/63444&quot;&gt;希腊神话&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://baike.baidu.com/item/%E5%9F%83%E5%8F%8A%E7%A5%9E%E8%AF%9D/2062509&quot;&gt;埃及神话&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;不同文化中常见的相同神话主题&quot;&gt;不同文化中常见的相同神话主题&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;万物起源&lt;/li&gt;
+  &lt;li&gt;上帝&lt;/li&gt;
+  &lt;li&gt;太阳神&lt;/li&gt;
+  &lt;li&gt;月神&lt;/li&gt;
+  &lt;li&gt;图腾崇拜&lt;/li&gt;
+  &lt;li&gt;神仙&lt;/li&gt;
+  &lt;li&gt;妖怪&lt;/li&gt;
+  &lt;li&gt;灵魂&lt;/li&gt;
+  &lt;li&gt;巫术&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;希腊神话的主要来源&quot;&gt;希腊神话的主要来源&lt;/h1&gt;
+&lt;p&gt;即口头或文字上一切有关古希腊人的神、英雄、自然和宇宙历史的神话。这些神话开始于口耳相传，今日所知的希腊神话或传说大多来源于古希腊文学。比较著名的有统称为荷马史诗的《伊利亚特》和《奥德赛》，着重描写了和特洛伊战争相关的重大事件。基本上和荷马是同时期的赫西俄德的两部诗歌《神谱》和《工作与时日》包含了当时的学者对世界起源、神权统治和人类时代的延续以及人类疾苦和祭祀活动的起源的看法和认识。&lt;/p&gt;
+
+&lt;h1 id=&quot;希腊神话中的神系派别&quot;&gt;希腊神话中的神系派别&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;自然、神、人&lt;/li&gt;
+  &lt;li&gt;泰坦神族（旧）、奥林匹斯神系（新）&lt;/li&gt;
+  &lt;li&gt;神、英雄&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/gods-of-greece.png&quot; alt=&quot;希腊神话主神关系图&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;克罗诺斯如何上位：乌拉诺斯仇视6个巨人儿子，把他们关在地神盖亚腹内的黑暗中，让他们不见天日。盖亚很痛苦，劝6个泰坦儿子起来反对乌拉诺斯，乌拉诺斯用计谋阉割了他父亲，成为众神领袖&lt;/li&gt;
+  &lt;li&gt;宙斯如何上位：克罗诺斯担心子女们起来反抗他，使自己落下跟乌拉诺斯一样的命运，所以他吞噬了瑞亚生下的所有子女，到宙斯时，瑞亚听从父母亲劝告，逃到克里特岛，生下宙斯并用包布裹上一块石头给克罗诺斯吞食。宙斯长大后逼他吐出所有的子女。然后是一场旷日持久的奥林波斯诸神与提坦神争夺世界统治权的战争，宙斯得到独眼巨人和百臂巨人的帮助，还有部分提坦神站在宙斯这边，最终打败了提坦神。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;几个著名的源于希腊神话的典故&quot;&gt;几个著名的源于希腊神话的典故&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;Achilles’ Heel （阿喀琉斯之踵）&lt;/li&gt;
+  &lt;li&gt;Pygmalion Effect （皮格马利翁效应，别跟萧伯纳的《卖花女》人物搞混）&lt;/li&gt;
+  &lt;li&gt;Oedipus Complex （俄狄浦斯恋母情结）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;练习搭建一个神话框架&quot;&gt;练习：搭建一个神话框架&lt;/h1&gt;
+&lt;p&gt;用原始人的视角向孩子解释各种自然现象，什么是太阳、月亮、星星、白天和黑夜&lt;/p&gt;
+</description>
+        <pubDate>Mon, 25 Dec 2017 00:00:00 +0800</pubDate>
+        <link>https://josteinzheng.github.io/2017/12/25/greek-mythology/</link>
+        <guid isPermaLink="true">https://josteinzheng.github.io/2017/12/25/greek-mythology/</guid>
+        
+        <category>social sciences</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Play with HTTP</title>
+        <description>&lt;h2 id=&quot;http-in-networking-protocol-stack&quot;&gt;HTTP in Networking protocol Stack&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;/img/Network-Stack-Models1.png&quot; alt=&quot;network stack model&quot; /&gt;
+  &lt;a href=&quot;https://vichargrave.github.io/programming/tcp-ip-network-programming-design-patterns-in-cpp/&quot;&gt;TCP/IP Network Programming Design Pattens in C++&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;play-with-others&quot;&gt;Play with others&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;dns
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  host google.com
+  nslookup renrendai.com
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+    &lt;p&gt;dns &amp;amp;&amp;amp; ip.src=[localhost’s ip] on wireshark to filter the packets&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;ssh
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  ssh frontend@172.16.3.27
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;ping
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  ping www.renrendai.com
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;NTP on UDP
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  echo &quot;Hello world&quot; &amp;gt; /dev/udp/127.0.0.1/8080
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;play-with-http&quot;&gt;Play with HTTP&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;as a client&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;set up a simple server first&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;HEAD method
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HEAD / HTTP/1.1
+Host: localhost
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;method or http version not support
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;OPTIONS / HTTP/1.1
+Host: localhost
+
+GET / HTTP/2.0
+Host: localhost
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;make a request to get standard http response
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;telnet localhost 8000
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+    &lt;ol&gt;
+      &lt;li&gt;as a server&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;make a response tell browser to redirect
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HTTP/1.1 307 Temporary Redirect
+Location: https://www.renrendai.org/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;a response to tell not exist
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HTTP/1.1 404 Not found
+Content-Type: text/html; charset=UTF-8
+
+&amp;lt;html&amp;gt;
+  &amp;lt;head&amp;gt;&amp;lt;title&amp;gt;Not found&amp;lt;/title&amp;gt;&amp;lt;/head&amp;gt;
+  &amp;lt;body&amp;gt;Can't find the resource.&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;make a normal response
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HTTP/1.1 200 OK
+Content-type: text/plain
+Content-length: 50
+
+Hello, browser! I am a real HTTP server, honestly!
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    3. try some real website
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;get 3xx status code
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  telnet google.com 80
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;command-line-tools&quot;&gt;Command line tools&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;http-server #node module&lt;/li&gt;
+  &lt;li&gt;python -m SimpleHTTPServer&lt;/li&gt;
+  &lt;li&gt;python3 -m http.server 8000&lt;/li&gt;
+  &lt;li&gt;ncat -l 8080 &amp;amp;&amp;amp; ncat localhost 8080 # use wireshark to capture the communication&lt;/li&gt;
+  &lt;li&gt;dig, host or nslookup #lookup address or domain name from DNS&lt;/li&gt;
+  &lt;li&gt;echo “Hello world” &amp;gt; /dev/udp/127.0.0.1/3000 # send data using UDP&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://sourceforge.net/projects/swissfileknife/files/1-swissfileknife/1.8.8/&quot;&gt;Swiss File Knife&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;reference&quot;&gt;Reference&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Overview&quot;&gt;HTTP概述&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://afterthoughtsoftware.com/posts/an-easy-way-to-send-udp-packets-in-linux&quot;&gt;An easy way to send UDP packets in Linux&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods&quot;&gt;HTTP request methods&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html&quot;&gt;HTTP/1.1: Status Code Definitions&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Wed, 08 Nov 2017 00:00:00 +0800</pubDate>
+        <link>https://josteinzheng.github.io/2017/11/08/play-with-http/</link>
+        <guid isPermaLink="true">https://josteinzheng.github.io/2017/11/08/play-with-http/</guid>
+        
+        <category>network</category>
+        
+        
+      </item>
+    
+  </channel>
+</rss>
